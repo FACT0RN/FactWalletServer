@@ -1381,3 +1381,12 @@ class DeserializerPrimecoin(Deserializer):
         header_end = self.cursor
         self.cursor = start
         return self._read_nbytes(header_end - start)
+
+class DeserializerFact0rn(DeserializerSegWit):
+    def read_header(self, static_header_size):
+        '''Return the block header bytes'''
+        start = self.cursor
+        self.cursor += static_header_size
+        header_end = self.cursor
+        self.cursor = start
+        return self._read_nbytes(header_end - start)

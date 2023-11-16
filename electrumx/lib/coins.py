@@ -234,7 +234,7 @@ class Coin:
     @classmethod
     def header_prevhash(cls, header):
         '''Given a header return previous hash'''
-        return header[4:36]
+        return header[128:160]
 
     @classmethod
     def static_header_offset(cls, height):
@@ -2704,7 +2704,9 @@ class MNPCoin(Coin):
     XPUB_VERBYTES = bytes.fromhex("0488B21E")
     XPRV_VERBYTES = bytes.fromhex("0488ADE4")
     GENESIS_HASH = ('00000924036c67d803ce606ded814312'
-                    '7e62fa2111dd3b063880a1067c69ccb1')
+                    '7e62fa2111dd3b063880a1067c69ccb')
+    HEADER_VALUES = ('version', 'prev_block_hash', 'merkle_root', 'timestamp',
+                     'bits', 'nonce')
     P2PKH_VERBYTE = bytes.fromhex("32")
     P2SH_VERBYTES = (bytes.fromhex("35"),)
     WIF_BYTE = bytes.fromhex("37")
@@ -4217,3 +4219,41 @@ class FerriteTestnet(Ferrite):
         'enode2.ferritecoin.org s t',
         'enode3.ferritecoin.org s t',
     ]
+
+
+class Fact0rnChainPowMixin:
+    STATIC_BLOCK_HEADERS = True
+    DESERIALIZER = lib_tx.DeserializerFact0rn
+
+    @classmethod
+    def block_header(cls, block, height):
+        '''Return the block header bytes'''
+        deserializer = cls.DESERIALIZER(block)
+        return deserializer.read_header(cls.BASIC_HEADER_SIZE)
+
+class Fact0rn( Fact0rnChainPowMixin, Coin):
+    NAME = "FACT0RN"
+    SHORTNAME = "FACT"
+    NET = "mainnet"
+    
+    BASIC_HEADER_SIZE = 218
+    RPC_PORT = 8332
+    CHUNK_SIZE = 672
+    RELAY_FEE = 0.00001
+
+    XPUB_VERBYTES = bytes.fromhex("0488b21e")
+    XPRV_VERBYTES = bytes.fromhex("0488ade4")
+    HEADER_VALUES = ('nP1', 'prev_block_hash', 'merkle_root', 'nNonce', 'wOffset', 'nVersion', 'timestamp','bits')
+    
+    GENESIS_HASH = ('79cb40f8075b0e3dc2bc468c5ce2a7ac'
+                    'be0afd36c6c3d3a134ea692edac7de49')
+
+    DAEMON = daemon.FakeEstimateFeeDaemon
+    ESTIMATE_FEE = 0.00001
+
+    TX_COUNT = 96936
+    TX_COUNT_HEIGHT = 90713
+    TX_PER_BLOCK = 2
+
+    REORG_LIMIT = 1000
+    PEERS = [    ]
