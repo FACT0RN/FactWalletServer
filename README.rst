@@ -30,5 +30,6 @@ Docker
 ======
 
 docker build --tag fac_elecrum .
+
 docker run -ti -v /data/git/electrumx/:/home/electrumx/electrumx --network host  fac_elecrum bas
 
