@@ -33,3 +33,15 @@ docker build --tag fac_elecrum .
 
 docker run -ti -v /data/git/electrumx/:/home/electrumx/electrumx --network host  fac_elecrum bas
 
+
+FACT0RN SPECIFICS
+=================
+
+To run the FACT0RN Wallet Server you will need to modify a couple of things in docker/Dockerfile:
+
+1. Line [32](https://github.com/FACT0RN/FactWalletServer/blob/master/docker/Dockerfile#L32): edit to write your fact0rn daemon's username and password.
+2. The keys and certificates in the ``docker/certs`` path need to be unique to your server for security reasons. Create new ones and replace the ones there.
+3. Only after doing steps 1 and 2, we now build the docker container from the docker folder.
+4. Run the container as specified on the Docker section above. You may want to add `` --ulimit nofile=18000:200000`` to that docker command. Not needed, but if you have enough connections it might help.
+
+
