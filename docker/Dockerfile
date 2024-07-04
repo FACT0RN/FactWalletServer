@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-RUN apt update && apt install -y gcc g++ git cmake make libtool libleveldb-dev python3-pip daemontools-run tree vim  
+RUN apt update && apt install -y gcc g++ git cmake make libtool libleveldb-dev python3-pip daemontools-run tree vim s6
 
 RUN useradd --no-log-init --system --create-home --shell /bin/bash -G sudo -g sudo  -G root -g root -u 1001 electrumx
 
@@ -10,13 +10,15 @@ WORKDIR /home/electrumx
 RUN git clone https://github.com/spesmilo/electrumx.git \
     && cd electrumx \
     && pip install . \
-    && pip install .[ujson]
+    && pip install .[ujson] \
+    && pip install "aiorpcx==0.22.0" \
+    && pip install pylru
 
 RUN    mkdir -p /home/electrumx/db  \
     && mkdir service                \
     && mkdir logs                   \
     && mkdir -p scripts/electrumx   \
-    && cp -R /home/electrumx/electrumx/contrib/daemontools/* /home/electrumx/scripts/electrumx \ 
+    && cp -R /home/electrumx/electrumx/contrib/daemontools/* /home/electrumx/scripts/electrumx \
     && cd /home/electrumx/service \
     && ln -s ~/scripts/electrumx/ electrumx
 
