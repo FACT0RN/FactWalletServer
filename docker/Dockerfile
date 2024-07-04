@@ -34,10 +34,6 @@ RUN echo "#!/bin/sh\nexec multilog s500000 n10 /home/electrumx/logs" > /home/ele
 RUN echo "/home/electrumx/certs/server.crt"                          > /home/electrumx/service/electrumx/env/SSL_CERTFILE
 RUN echo "/home/electrumx/certs/server.key"                          > /home/electrumx/service/electrumx/env/SSL_KEYFILE
 RUN echo ""                                                          > /home/electrumx/service/electrumx/env/PEER_ANNOUNCE
-RUN echo echo "rpc://127.0.0.1:8000,tcp://127.0.0.1:50001,ssl://127.0.0.1:50002"> /home/electrumx/service/electrumx/env/SERVICES
+RUN echo "tcp://:50001,ssl://:50002"                                 > /home/electrumx/service/electrumx/env/SERVICES
 
-
-
-
-
-
+ENTRYPOINT ["/usr/bin/s6-svscan","/home/electrumx/service"]
