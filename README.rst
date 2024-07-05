@@ -29,12 +29,12 @@ See `readthedocs <https://electrumx-spesmilo.readthedocs.io/>`_.
 Docker
 ======
 
-docker build --tag fac_elecrum .
+docker build --tag FactWalletServer .
 
-docker run -ti -v /data/git/electrumx/:/home/electrumx/electrumx --network host  fac_elecrum bas
+docker run -v <FactWalletServer Repo Parent Directory>:/home/electrumx/electrumx --network host FactWalletServer &
 
 
-FACT0RN SPECIFICS
+Fact0rn Specifics
 =================
 
 To run the FACT0RN Wallet Server you will need to modify a couple of things in docker/Dockerfile:
@@ -42,6 +42,20 @@ To run the FACT0RN Wallet Server you will need to modify a couple of things in d
 1. Line [32](https://github.com/FACT0RN/FactWalletServer/blob/master/docker/Dockerfile#L32): edit to write your fact0rn daemon's username and password.
 2. The keys and certificates in the ``docker/certs`` path need to be unique to your server for security reasons. Create new ones and replace the ones there.
 3. Only after doing steps 1 and 2, we now build the docker container from the docker folder.
-4. Run the container as specified on the Docker section above. You may want to add `` --ulimit nofile=18000:200000`` to that docker command. Not needed, but if you have enough connections it might help.
+4. Run the container as specified on the Docker section above. You may want to add ``--ulimit nofile=18000:200000`` to that docker command. Not needed, but if you have enough connections it might help.
 
+Note: Set your username and password for the factornd daemon in the configuration file in ``~/.factorn/factorn.conf``. For example, the first three lines should read:
+
+
+``rpcuser=<UsernameHere>``
+
+``rpcpassword=<PasswordHere>`` 
+
+``txindex=1``
+
+
+Plus any other options you set. These three will be enough to run the wallet server.
+
+
+To check if your wallet server is running, you can execute bash in interactive mode inside the container and look at the tail of the text file ``~/logs/current`` for the latest logs of the server.
 
