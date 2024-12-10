@@ -1,28 +1,31 @@
 FROM ubuntu:22.04
 
-RUN apt update && apt install -y gcc g++ git cmake make libtool libleveldb-dev python3-pip daemontools-run tree vim  
+RUN apt update && apt install -y gcc g++ git cmake make libtool libleveldb-dev python3-pip daemontools-run tree vim s6
 
 RUN useradd --no-log-init --system --create-home --shell /bin/bash -G sudo -g sudo  -G root -g root -u 1001 electrumx
 
 USER electrumx
+WORKDIR /home/electrumx/electrumx
+
+COPY . .
+
+RUN    pip install -c constraints.txt . \
+    && pip install -c constraints.txt .[ujson] \
+    && pip install -c constraints.txt "aiorpcx==0.22.0" \
+    && pip install -c constraints.txt pylru
+
 WORKDIR /home/electrumx
 
-RUN git clone https://github.com/spesmilo/electrumx.git \
-    && cd electrumx \
-    && pip install . \
-    && pip install .[ujson]
-
 RUN    mkdir -p /home/electrumx/db  \
-    && mkdir service                \
-    && mkdir logs                   \
-    && mkdir -p scripts/electrumx   \
-    && cp -R /home/electrumx/electrumx/contrib/daemontools/* /home/electrumx/scripts/electrumx \ 
+    && mkdir -p /home/electrumx/service                \
+    && mkdir -p /home/electrumx/logs                   \
+    && mkdir -p /home/electrumx/scripts/electrumx   \
+    && mkdir -p /home/electrumx/certs \
+    && cp -R /home/electrumx/electrumx/contrib/daemontools/* /home/electrumx/scripts/electrumx \
     && cd /home/electrumx/service \
-    && ln -s ~/scripts/electrumx/ electrumx
+    && ln -s /home/electrumx/scripts/electrumx/ electrumx
 
-RUN mkdir certs
-
-COPY --chown=electrumx certs/ certs
+COPY --chown=electrumx docker/certs/ certs
 
 RUN echo "/home/electrumx/electrumx/electrumx_server"                > /home/electrumx/scripts/electrumx/env/ELECTRUMX
 RUN echo "FACT0RN"                                                   > /home/electrumx/scripts/electrumx/env/COIN
@@ -34,10 +37,9 @@ RUN echo "#!/bin/sh\nexec multilog s500000 n10 /home/electrumx/logs" > /home/ele
 RUN echo "/home/electrumx/certs/server.crt"                          > /home/electrumx/service/electrumx/env/SSL_CERTFILE
 RUN echo "/home/electrumx/certs/server.key"                          > /home/electrumx/service/electrumx/env/SSL_KEYFILE
 RUN echo ""                                                          > /home/electrumx/service/electrumx/env/PEER_ANNOUNCE
-RUN echo echo "rpc://127.0.0.1:8000,tcp://127.0.0.1:50001,ssl://127.0.0.1:50002"> /home/electrumx/service/electrumx/env/SERVICES
+RUN echo "tcp://:50001,ssl://:50002,ws://:50003,wss://:50004"        > /home/electrumx/service/electrumx/env/SERVICES
+RUN echo "0"                                                         > /home/electrumx/service/electrumx/env/COST_SOFT_LIMIT
+RUN echo "0"                                                         > /home/electrumx/service/electrumx/env/COST_HARD_LIMIT
 
-
-
-
-
+ENTRYPOINT ["/usr/bin/s6-svscan","/home/electrumx/service"]
 
